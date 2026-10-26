@@ -1,0 +1,89 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - WEBUI_AUTH=${WEBUI_AUTH:-true}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${DATA_DIR:-/opt/cloud-fleet/data}/open-webui:/app/backend/data
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  code-server:
+    image: codercom/code-server:latest
+    container_name: code-server
+    restart: always
+    ports:
+      - "8443:8080"
+    environment:
+      - PASSWORD=${CODE_SERVER_PASSWORD:-changeme_secure_pass_123}
+      - SUDO_PASSWORD=${CODE_SERVER_PASSWORD:-changeme_secure_pass_123}
+      - DEFAULT_WORKSPACE=/home/coder/project
+    volumes:
+      - /home/ubuntu:/home/coder/project
+      - ${DATA_DIR:-/opt/cloud-fleet/data}/code-server:/home/coder/.local/share/code-server
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  chromium-cloud:
+    image: jlesage/chromium:latest
+    container_name: chromium-cloud
+    restart: always
+    shm_size: "2g"
+    ports:
+      - "5800:5800"
+      - "9222:9222"
+    environment:
+      - ENABLE_CJK_FONT=1
+      - KEEP_APP_RUNNING=1
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - CHROMIUM_FLAGS=--remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 --no-sandbox
+    volumes:
+      - ${DATA_DIR:-/opt/cloud-fleet/data}/chromium-config:/config
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - ${DATA_DIR:-/opt/cloud-fleet/data}/uptime-kuma:/app/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA_DIR:-/opt/cloud-fleet/data}/portainer:/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+networks:
+  default:
+    name: cloud-fleet-net

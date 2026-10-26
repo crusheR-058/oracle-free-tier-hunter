@@ -1,0 +1,20 @@
+[Unit]
+Description=Arma Reforger Dedicated Server (8 Players)
+Documentation=https://community.bistudio.com/wiki/Arma_Reforger:Server_Hosting
+After=network.target
+
+[Service]
+Type=simple
+User=reforger
+Group=reforger
+WorkingDirectory=/home/reforger/server
+ExecStart=/home/reforger/server/ArmaReforgerServer -config /home/reforger/server/ArmaReforgerServer.json -profile /home/reforger/profile -maxFPS 60
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+Nice=-5
+
+[Install]
+WantedBy=multi-user.target

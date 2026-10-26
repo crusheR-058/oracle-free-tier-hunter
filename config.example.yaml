@@ -1,0 +1,117 @@
+# Oracle Free-Tier Hunter Configuration
+# Autonomous OCI Capacity Monitor, Free Resource Optimizer & Immediate Auto-Provisioner
+
+# -----------------------------------------------------------------------------
+# OCI CREDENTIALS & REGION
+# -----------------------------------------------------------------------------
+# Path to your OCI configuration file (standard is ~/.oci/config or %USERPROFILE%/.oci/config)
+oci_config_file: "~/.oci/config"
+oci_profile: "DEFAULT"
+
+# Target OCI Region (India South - Hyderabad)
+region: "ap-hyderabad-1"
+
+# Target Compartment OCID (optional; if left null/empty, tenancy root compartment is used)
+compartment_id: null
+
+# -----------------------------------------------------------------------------
+# OPERATING MODE
+# -----------------------------------------------------------------------------
+# Options:
+#  - WATCH_ONLY: Read-only inspection, discovery, ranking, and reporting. NEVER provisions or modifies cloud resources.
+#  - AUTO_PROVISION_FREE: Actively monitors for valid, 100% free opportunities and IMMEDIATELY attempts creation.
+#  - GAME_SERVER_DEPLOYMENT: Executes post-provisioning configuration and dedicated server installation.
+mode: "WATCH_ONLY"
+
+# Explicit master toggle for automatic provisioning. Must be explicitly true to permit automated launches in AUTO_PROVISION_FREE mode.
+auto_provision_enabled: false
+
+# Monitoring interval in minutes
+poll_interval_minutes: 3
+
+# Exponential backoff multiplier when capacity is unavailable or transient errors occur
+backoff_factor: 1.0
+max_backoff_minutes: 3
+jitter_ratio: 0.05
+
+# -----------------------------------------------------------------------------
+# STRICT ZERO-COST & FREE-TIER GUARDS (NON-NEGOTIABLE)
+# -----------------------------------------------------------------------------
+# Maximum acceptable monthly cloud expenditure in INR (Budget is strictly ₹0)
+maximum_monthly_cost: 0.0
+
+# Strict billing safety switches (Fail-closed: if any is set to true violating ₹0 budget, validation fails)
+allow_paid_resources: false
+allow_account_upgrade: false
+allow_automatic_termination: false
+allow_unverified_architecture: false
+allow_unverified_free_eligibility: false
+allow_uncertain_cost: false
+
+# -----------------------------------------------------------------------------
+# WORKLOAD & ARCHITECTURE REQUIREMENTS (Arma Reforger Dedicated Server)
+# -----------------------------------------------------------------------------
+# Target player capacity
+target_players: 8
+
+# Preferred operating system and architecture
+preferred_os: "Ubuntu"
+preferred_os_version: "22.04"
+preferred_architecture: "x86_64"
+
+# Enforce native binary architecture compatibility.
+# If true, candidates lacking an official native Linux binary are rejected from automatic production provisioning.
+require_native_reforger_compatibility: true
+
+# Experimental flag: Set to true only if you want to test running Reforger on Ampere A1 (ARM64)
+# using Box64 binary translation. Note: Box64 is unsupported by Bohemia and prone to frame/tick drops.
+experimental_arm64_emulation: false
+
+# Maximum instances to create by this tool (safety lock to prevent multiple provisioning)
+maximum_instances_created_by_this_tool: 1
+
+# Instance naming prefix for deterministic tracking and collision resistance
+instance_name_prefix: "viaf-reforger-free-"
+
+# Respect account-level service limits and quotas
+respect_service_limits: true
+
+# -----------------------------------------------------------------------------
+# STORAGE OPTIMIZATION
+# -----------------------------------------------------------------------------
+# Target boot volume size in GB for the instance (Ubuntu + Reforger server requires ~45-50 GB minimum)
+boot_volume_size_gb: 50
+
+# Maximum aggregate storage limit across all boot and block volumes in tenancy (OCI Always Free provides 200 GB)
+total_allowed_block_storage_gb: 200
+
+# -----------------------------------------------------------------------------
+# SSH & INSTANCE ACCESS
+# -----------------------------------------------------------------------------
+# Path to your SSH public key file (e.g., ~/.ssh/id_rsa.pub or C:/Users/user/.ssh/id_ed25519.pub)
+ssh_public_key_path: null
+
+# Alternatively, paste raw OpenSSH public key string here (ssh-rsa ... or ssh-ed25519 ...)
+ssh_public_key: null
+
+# -----------------------------------------------------------------------------
+# NOTIFICATIONS (TELEGRAM IS STRICTLY FORBIDDEN)
+# -----------------------------------------------------------------------------
+# Desktop notifications (Native Windows toast / notification bubble)
+enable_desktop_notifications: true
+
+# Email notifications via standard SMTP (Optional)
+enable_email_notifications: false
+smtp_host: null
+smtp_port: 587
+smtp_user: null
+smtp_password: null
+smtp_from: null
+notification_email: null
+
+# -----------------------------------------------------------------------------
+# SYSTEM & LOGGING
+# -----------------------------------------------------------------------------
+log_level: "INFO"
+state_file_path: "state.json"
+lock_file_path: "provisioning.lock"
